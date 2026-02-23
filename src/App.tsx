@@ -65,6 +65,66 @@ const INITIAL_CITIES = (width: number, height: number): City[] => {
   }));
 };
 
+const UFO = ({ size, top, left, delay }: { size: number, top: string, left: string, delay: number }) => (
+  <motion.div
+    initial={{ x: -100, opacity: 0, scale: 0.8 }}
+    animate={{ 
+      x: [0, 30, -30, 0],
+      y: [0, -15, 15, 0],
+      rotate: [0, 2, -2, 0],
+      opacity: 1,
+      scale: 1
+    }}
+    transition={{ 
+      x: { duration: 8, repeat: Infinity, ease: "easeInOut" },
+      y: { duration: 5, repeat: Infinity, ease: "easeInOut" },
+      rotate: { duration: 6, repeat: Infinity, ease: "easeInOut" },
+      opacity: { duration: 1, delay }
+    }}
+    style={{ top, left, position: 'absolute' }}
+    className="z-10 pointer-events-none filter drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+  >
+    <div style={{ width: size, height: size / 2.5 }} className="relative group">
+      {/* Tractor Beam Glow */}
+      <motion.div 
+        animate={{ opacity: [0.1, 0.3, 0.1], scale: [1, 1.1, 1] }}
+        transition={{ duration: 2, repeat: Infinity }}
+        className="absolute top-[80%] left-1/2 -translate-x-1/2 w-[40%] h-[200%] bg-gradient-to-b from-emerald-500/40 to-transparent blur-xl"
+      />
+      
+      {/* UFO Body - Metallic Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-zinc-300 via-zinc-500 to-zinc-800 rounded-full border-b-4 border-black/40 shadow-2xl" />
+      
+      {/* UFO Dome - Glassy */}
+      <div className="absolute top-[-25%] left-[25%] w-[50%] h-[70%] bg-gradient-to-br from-emerald-300/40 to-emerald-600/20 rounded-full border border-white/20 backdrop-blur-md shadow-inner overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-white/40 rounded-full blur-[1px]" />
+      </div>
+
+      {/* UFO Ring Detail */}
+      <div className="absolute top-[45%] left-[5%] w-[90%] h-[10%] bg-black/20 rounded-full" />
+
+      {/* UFO Lights - Pulsing */}
+      <div className="absolute bottom-[25%] left-0 w-full flex justify-around px-4">
+        {[1, 2, 3, 4, 5].map(i => (
+          <motion.div
+            key={i}
+            animate={{ 
+              backgroundColor: ['#10b981', '#34d399', '#10b981'],
+              boxShadow: [
+                '0 0 5px rgba(16,185,129,0.5)',
+                '0 0 15px rgba(16,185,129,0.8)',
+                '0 0 5px rgba(16,185,129,0.5)'
+              ]
+            }}
+            transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.3 }}
+            className="w-2 h-2 rounded-full"
+          />
+        ))}
+      </div>
+    </div>
+  </motion.div>
+);
+
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [status, setStatus] = useState<GameStatus>(GameStatus.START);
@@ -703,9 +763,59 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-zinc-950/95 flex items-center justify-center p-6 z-50"
+            className="absolute inset-0 bg-zinc-950 flex items-center justify-center p-6 z-50 overflow-hidden"
           >
-            <div className="max-w-2xl w-full text-center space-y-12">
+            {/* Start Screen Background - Detailed City */}
+            <div className="absolute inset-0 pointer-events-none">
+              {/* Background Image Layer for HD feel */}
+              <img 
+                src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=1920&q=80" 
+                alt="City Night"
+                className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-screen"
+                referrerPolicy="no-referrer"
+              />
+              
+              <div className="absolute bottom-0 w-full h-[60vh] bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent z-10" />
+              
+              {/* Detailed Silhouette with Windows */}
+              <div className="absolute bottom-0 left-0 w-full h-[45vh] flex items-end justify-between px-0 overflow-hidden">
+                {[...Array(15)].map((_, i) => {
+                  const h = 30 + Math.random() * 60;
+                  const w = 5 + Math.random() * 8;
+                  return (
+                    <div 
+                      key={i} 
+                      className="relative bg-zinc-800 border-x border-white/10 flex flex-col gap-1 p-2 pt-4 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]"
+                      style={{ width: `${w}%`, height: `${h}%` }}
+                    >
+                      {/* Antennae */}
+                      {Math.random() > 0.5 && (
+                        <div className="absolute top-[-20px] left-1/2 -translate-x-1/2 w-px h-5 bg-zinc-600">
+                          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse rounded-full" />
+                        </div>
+                      )}
+                      
+                      {/* Windows */}
+                      <div className="grid grid-cols-2 gap-1 opacity-50">
+                        {[...Array(Math.floor(h / 5))].map((_, j) => (
+                          <div 
+                            key={j} 
+                            className={`h-1 rounded-sm ${Math.random() > 0.6 ? 'bg-yellow-100 shadow-[0_0_8px_rgba(254,240,138,0.6)]' : 'bg-zinc-700'}`} 
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* UFOs */}
+            <UFO size={220} top="15%" left="10%" delay={0.5} />
+            <UFO size={80} top="10%" left="70%" delay={1.2} />
+            <UFO size={50} top="30%" left="80%" delay={1.8} />
+
+            <div className="max-w-2xl w-full text-center space-y-12 z-20">
               <motion.div
                 initial={{ y: 40, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
